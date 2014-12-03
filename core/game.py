@@ -1,11 +1,8 @@
+from core.gfx import SCREEN_WIDTH
 import libtcodpy as libtcod
 import sys
 import traceback
-
-
-# Screen with / height in characters
-SCREEN_WIDTH = 80
-SCREEN_HEIGHT = 50
+import gfx
 
 
 # A Game represents a single instance of a game, including its maps,
@@ -17,11 +14,20 @@ class Game(object):
 
     def step(self):
         x, y = 5, 5
+
+        # get reference to the back buffer
+        scr = gfx.get_back_buffer()
         while not libtcod.console_is_window_closed():
 
-            # render the screen
-            libtcod.console_clear(0)
-            libtcod.console_put_char(0, x, y, "@")
+            # render the screen to the back buffer
+            libtcod.console_clear(scr)
+            libtcod.console_put_char(scr, x, y, "@")
+
+            # blit contents from back buffer to root window
+            libtcod.console_blit(gfx.get_back_buffer(), 0, 0,
+                                 gfx.SCREEN_WIDTH, gfx.SCREEN_HEIGHT,
+                                 0, 0, 0)
+
             libtcod.console_flush()
 
             # handle keys and exit game
@@ -43,16 +49,11 @@ class Game(object):
 
     # Runs an interactive session of our game with the player
     def play(self):
-        libtcod.console_set_custom_font('arial10x10.png',
-                                        libtcod.FONT_TYPE_GREYSCALE |
-                                        libtcod.FONT_LAYOUT_TCOD)
-
-        libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT,
-                                  'RogueLike with libtcod', False)
+        gfx.start()
 
         try:
             self.step()
         except:
             print (traceback.format_exc())
             sys.exit(-1)
-        
+
