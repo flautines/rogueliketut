@@ -21,6 +21,20 @@ def start():
 
     back_buffer = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 
+
 def get_back_buffer():
     global back_buffer
     return back_buffer
+
+
+# Clear the screen. This uses the libtcod clear routine
+def clear():
+    libtcod.console_clear(back_buffer)
+
+
+# Draw a character at X,Y. Includes boundary checking
+def draw(x, y, char, color=libtcod.white):
+    libtcod.console_put_char_ex(back_buffer, x, y, char,
+                                fore=color, back=libtcod.BKGND_NONE)
+
+
