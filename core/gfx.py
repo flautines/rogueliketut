@@ -36,5 +36,3 @@ def clear():
 def draw(x, y, char, color=libtcod.white):
     libtcod.console_put_char_ex(back_buffer, x, y, char,
                                 fore=color, back=libtcod.BKGND_NONE)
-
-

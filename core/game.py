@@ -7,10 +7,8 @@ import gfx
 import world
 
 
-
 # A Game represents a single instance of a game, including its maps,
 # data, and everything else.
-
 class Game(object):
     def __init__(self):
         self.world = world.World()

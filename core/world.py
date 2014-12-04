@@ -1,34 +1,8 @@
 import libtcodpy as libtcod
 from core import gfx
 from core import entity
-
-
-# tile_info
-# key : (char, color, is_passable)
-tile_info = {
-    "t_floor": ('.', libtcod.white, True),
-    "t_wall": ('#', libtcod.light_sepia, False),
-    "t_tree": ('T', libtcod.dark_green, True)
-}
-
-
-# a tile of the map and its properties
-class Tile:
-    def __init__(self, is_passable, type, blocks_sight=None):
-        """
-        A Tile contains info about each cell in the map.
-
-        :param is_passable: True if the tile doesn't block movement
-        :param blocks_sight: True if the tile doesn't block sight
-        """
-        self.is_passable = is_passable
-
-        # by default, if a tile is blocked, it also blocks sight
-        if blocks_sight is None:
-            self.blocks_sight = not is_passable
-
-        self.type = type
-
+from core import tile
+from core.tile import Tile
 
 class World(object):
     def __init__(self):
@@ -62,8 +36,7 @@ class World(object):
                         # If tile is empty (no entities), draw wall or floor
                 if tile_empty:
                     tile = self.map[x][y]
-                    gfx.draw(x, y, tile_info[tile.type][0],
-                             color=tile_info[tile.type][1])
+                    gfx.draw(x, y, char=tile.char, color=tile.color)
 
                     # else:
                     # gfx.draw(x, y, ".")
@@ -112,13 +85,13 @@ class World(object):
 
     def make_map(self):
         # fill the map with "unblocked" tiles
-        self.map = [[Tile(True, 't_floor')
+        self.map = [[Tile('t_floor')
                      for y in range(self.height)]
                     for x in range(self.width)]
 
-        self.map[30][22] = Tile(False, 't_wall')
-        self.map[39][22] = Tile(False, 't_wall')
-        self.map[23][12] = Tile(False, 't_tree')
+        self.map[30][22] = Tile('t_wall')
+        self.map[39][22] = Tile('t_wall')
+        self.map[23][12] = Tile('t_tree')
 
     # returns True if tile at x, y position is walkable
     def is_passable(self, x, y):
@@ -131,4 +104,5 @@ class World(object):
         if not in_bounds:
             return False
         else:
-            return tile_info[self.map[x][y].type][2]
+            tile = self.map[x][y]
+            return tile.is_passable()
