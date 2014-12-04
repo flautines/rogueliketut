@@ -4,7 +4,7 @@ import libtcodpy as libtcod
 # key : (char, color, is_passable)
 tile_info = {
     "t_floor": ('.', libtcod.white, True),
-    "t_wall": ('#', libtcod.light_sepia, False),
+    "t_wall": (chr(178), libtcod.light_sepia, False),
     "t_tree": ('T', libtcod.dark_green, False)
 }
 

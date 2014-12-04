@@ -3,12 +3,13 @@ from core import gfx
 from core import entity
 from core import tile
 from core.tile import Tile
+from core import dungeon
 
 class World(object):
     def __init__(self):
-        self.width = 40
-        self.height = 25
-        self.player = entity.Entity("Player", 4, 4, "@", libtcod.yellow)
+        self.width = 50
+        self.height = 45
+        self.player = entity.Entity("Player", 15, 22, "@", libtcod.yellow)
 
         # The world keeps track of all the entities (monsters, player, etc.)
         self.entities = [self.player]
@@ -85,13 +86,8 @@ class World(object):
 
     def make_map(self):
         # fill the map with "unblocked" tiles
-        self.map = [[Tile('t_floor')
-                     for y in range(self.height)]
-                    for x in range(self.width)]
-
-        self.map[30][22] = Tile('t_wall')
-        self.map[39][22] = Tile('t_wall')
-        self.map[23][12] = Tile('t_tree')
+        dungeon_gen = dungeon.DungeonGenerator()
+        self.map = dungeon_gen.make_map(self.width, self.height)
 
     # returns True if tile at x, y position is walkable
     def is_passable(self, x, y):
