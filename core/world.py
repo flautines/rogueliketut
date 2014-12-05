@@ -7,12 +7,14 @@ from core import dungeon
 
 class World(object):
     def __init__(self):
-        self.width = 50
-        self.height = 45
+        self.width = 100         # Level width
+        self.height = 100        # level height
+        self.view_width = 50    # displayed level window width
+        self.view_height = 45   # displayed level window height
         self.player = entity.Entity("Player", 15, 22, "@", libtcod.yellow)
 
         # The world keeps track of all the entities (monsters, player, etc.)
-        self.entities = [self.player]
+        self.entities = []
 
     # Draws the world
     def draw(self):
@@ -23,24 +25,46 @@ class World(object):
         # clear the screen contents
         gfx.clear()
 
+        view_center_x = self.player.x - self.view_width / 2
+        view_center_y = self.player.y - self.view_height / 2
+
+        if view_center_x < 1:
+            view_center_x = 1
+        if view_center_y < 1:
+            view_center_y = 1
+
+        if view_center_x + self.view_width > self.width:
+            view_center_x = self.width - self.view_width
+
+        if view_center_y + self.view_height > self.height:
+            view_center_y = self.height - self.view_height
+
         # draw the map tiles
-        for y in range(self.height):
-            for x in range(self.width):
+        for y in range(self.view_height):
+            for x in range(self.view_width):
 
                 tile_empty = True
                 # For each tile, determine what entities will be drawn there
-                for e in self.entities:
-                    if (e.x, e.y) == (x, y):
-                        gfx.draw(x, y, e.char, e.color)
+                for entity in self.entities:
+                    if (entity.x - view_center_x, entity.y - view_center_y) \
+                            == (x, y):
+
+                        gfx.draw(x,y, entity.char, entity.color)
                         tile_empty = False
 
                         # If tile is empty (no entities), draw wall or floor
                 if tile_empty:
-                    tile = self.map[x][y]
+                    tile = self.map[x + view_center_x][y + view_center_y]
                     gfx.draw(x, y, char=tile.char, color=tile.color)
 
                     # else:
                     # gfx.draw(x, y, ".")
+
+        # Draw the player
+        draw_player_x = self.player.x - view_center_x
+        draw_player_y = self.player.y - view_center_y
+        gfx.draw(draw_player_x, draw_player_y,
+                 self.player.char, self.player.color)
 
         # blit contents from back buffer to root window
         libtcod.console_blit(gfx.get_back_buffer(), 0, 0,

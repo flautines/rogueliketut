@@ -9,7 +9,7 @@ import libtcodpy as libtcod
 # Room dimensions
 ROOM_MIN_SIZE = 6
 ROOM_MAX_SIZE = 10
-MAX_ROOMS = 15
+MAX_ROOMS = 30
 
 # Dungeon generator algorithms
 DG_TRIAL_ERROR  = 0
@@ -158,10 +158,10 @@ class DungeonGenerator(object):
 
                 # random room position inside boundaries of the map
                 room_x = libtcod.random_get_int(0,
-                        0, width - room_width - 1)
+                        1, width - room_width - 1)
 
                 room_y = libtcod.random_get_int(0,
-                        0, height - room_height - 1)
+                        1, height - room_height - 1)
 
                 # new room with dimensions and position from above
                 new_room = Rect(room_x, room_y, room_width, room_height)
@@ -183,7 +183,7 @@ class DungeonGenerator(object):
                     (new_x, new_y) = new_room.center
 
                     # debug, print room letters
-                    room_no = entity.Entity("", new_x, new_y,
+                    room_no = entity.Entity(chr(65+num_rooms), new_x, new_y,
                                 chr(65+num_rooms), libtcod.white)
                     entities.insert(0, room_no)
 
