@@ -87,7 +87,8 @@ class World(object):
     def make_map(self):
         # fill the map with "unblocked" tiles
         dungeon_gen = dungeon.DungeonGenerator()
-        self.map = dungeon_gen.make_map(self.width, self.height)
+        self.map = dungeon_gen.make_map(
+            self.width, self.height, self.player, self.entities)
 
     # returns True if tile at x, y position is walkable
     def is_passable(self, x, y):

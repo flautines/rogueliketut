@@ -14,7 +14,7 @@ class Tile:
     def __init__(self, type, blocks_sight=None):
         """
         A Tile contains info about each cell in the map.
-
+        ;:param type: Tile type, must be a string in the tile_info keys.
         :param blocks_sight: True if the tile doesn't block sight
         """
         self.type = type
