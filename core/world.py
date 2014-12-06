@@ -5,9 +5,19 @@ from core import tile
 from core.tile import Tile
 from core import dungeon
 
+
+# FOV constants
+FOV_ALGO = libtcod.FOV_BASIC
+FOV_LIGHT_WALLS = True
+TORCH_RADIUS = 5
+
+#-----------------------------------------------------------------------------
+#           World class
+#-----------------------------------------------------------------------------
+
 class World(object):
     def __init__(self):
-        self.width = 100         # Level width
+        self.width = 100        # Level width
         self.height = 100        # level height
         self.view_width = 50    # displayed level window width
         self.view_height = 45   # displayed level window height
@@ -15,6 +25,36 @@ class World(object):
 
         # The world keeps track of all the entities (monsters, player, etc.)
         self.entities = []
+
+        # keeps track when the FOV needs to be recomputed
+        self.fov_recompute = True
+
+
+    def _create_fov_map(self):
+        """
+
+
+        """
+        self.fov_map = libtcod.map_new(self.width, self.height)
+        for y in range(self.height):
+            for x in range(self.width):
+                libtcod.map_set_properties(
+                    self.fov_map, x, y,
+                    not self.map[x][y].blocks_sight,
+                    self.map[x][y].is_passable())
+
+    def _recompute_fov_if_needed(self):
+        """
+
+
+        """
+        # If FOV needs to be recomputed, flag it as no longer needed
+        # and do the FOV computations
+        if self.fov_recompute:
+            self.fov_recompute = False
+            libtcod.map_compute_fov(self.fov_map,
+                self.player.x, self.player.y, TORCH_RADIUS,
+                FOV_LIGHT_WALLS, FOV_ALGO)
 
     # Draws the world
     def draw(self):
@@ -39,23 +79,39 @@ class World(object):
         if view_center_y + self.view_height > self.height:
             view_center_y = self.height - self.view_height
 
+
+        # recompute FOV if needed (player moved or something)
+        self._recompute_fov_if_needed()
+
         # draw the map tiles
         for y in range(self.view_height):
             for x in range(self.view_width):
 
-                tile_empty = True
-                # For each tile, determine what entities will be drawn there
-                for entity in self.entities:
-                    if (entity.x - view_center_x, entity.y - view_center_y) \
-                            == (x, y):
+                visible = libtcod.map_is_in_fov(self.fov_map,
+                                x + view_center_x, y + view_center_y)
+                tile = self.map[x + view_center_x][y + view_center_y]
 
-                        gfx.draw(x,y, entity.char, entity.color)
-                        tile_empty = False
-
-                        # If tile is empty (no entities), draw wall or floor
-                if tile_empty:
-                    tile = self.map[x + view_center_x][y + view_center_y]
+                if visible:
                     gfx.draw(x, y, char=tile.char, color=tile.color)
+
+                    #since it's visible, flag it as explored
+                    self.map[x + view_center_x][y + view_center_y].explored = True
+
+                elif self.map[x + view_center_x][y + view_center_y].explored:
+                    gfx.draw(x, y, char=tile.char, color=tile.dark_color)
+                # tile_empty = True
+                # # For each tile, determine what entities will be drawn there
+                # for entity in self.entities:
+                #     if (entity.x - view_center_x, entity.y - view_center_y) \
+                #             == (x, y):
+                #
+                #         gfx.draw(x,y, entity.char, entity.color)
+                #         tile_empty = False
+                #
+                #         # If tile is empty (no entities), draw wall or floor
+                # if tile_empty:
+                #     tile = self.map[x + view_center_x][y + view_center_y]
+                #     gfx.draw(x, y, char=tile.char, color=tile.color)
 
                     # else:
                     # gfx.draw(x, y, ".")
@@ -103,16 +159,23 @@ class World(object):
             dy = 0
 
         if self.is_passable(self.player.x + dx, self.player.y + dy):
+            # if the player can move to the new position, flag that FOV
+            # needs to be recomputed and update the player's coordinates
+            self.fov_recompute = True
             self.player.x += dx
             self.player.y += dy
 
         return False
 
     def make_map(self):
-        # fill the map with "unblocked" tiles
+        # use the DungeonGenerator class to create the map level
         dungeon_gen = dungeon.DungeonGenerator()
         self.map = dungeon_gen.make_map(
             self.width, self.height, self.player, self.entities)
+
+        # create the FOV map
+        self._create_fov_map()
+
 
     # returns True if tile at x, y position is walkable
     def is_passable(self, x, y):

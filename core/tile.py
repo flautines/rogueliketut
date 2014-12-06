@@ -1,13 +1,37 @@
 import libtcodpy as libtcod
 
+
+#-----------------------------------------------------------------------------
+#                           Constants
+# ----------------------------------------------------------------------------
+
+# normal (in light) colors
+T_WALL_COLOR            = libtcod.Color(210, 180, 140)
+T_FLOOR_COLOR           = libtcod.white
+T_TREE_COLOR            = libtcod.dark_green
+
+# dark (in shadow) colors
+T_GEN_DARK_COLOR      = libtcod.Color(47, 79, 79)
+
+# for now, set all shadow colors to the same generic color.
+# But we can change it later on if we want each tile to have its own
+# shadow color
+T_WALL_DARK_COLOR     = T_GEN_DARK_COLOR
+T_FLOOR_DARK_COLOR    = T_GEN_DARK_COLOR
+T_TREE_DARK_COLOR     = T_GEN_DARK_COLOR
+
 # tile_info
-# key : (char, color, is_passable)
+# key : (char, normal color, dark color, is_passable)
 tile_info = {
-    "t_floor": ('.', libtcod.white, True),
-    "t_wall": (chr(178), libtcod.light_sepia, False),
-    "t_tree": ('T', libtcod.dark_green, False)
+    "t_floor":  ('.',      T_FLOOR_COLOR,  T_FLOOR_DARK_COLOR,  True),
+    "t_wall":   (chr(178), T_WALL_COLOR,   T_WALL_DARK_COLOR,   False),
+    "t_tree":   ('T',      T_TREE_COLOR,   T_TREE_DARK_COLOR,   False)
 }
 
+
+#-----------------------------------------------------------------------------
+#           Tile class
+#-----------------------------------------------------------------------------
 
 # a tile of the map and its properties
 class Tile:
@@ -21,7 +45,10 @@ class Tile:
 
         # by default, if a tile is blocked, it also blocks sight
         if blocks_sight is None:
-            self.blocks_sight = not tile_info[self.type][2]
+            self.blocks_sight = not tile_info[self.type][3]
+
+        # all tiles start unexplored
+        self.explored = False
 
     @property
     def char(self):
@@ -31,5 +58,9 @@ class Tile:
     def color(self):
         return tile_info[self.type][1]
 
-    def is_passable(self):
+    @property
+    def dark_color(self):
         return tile_info[self.type][2]
+
+    def is_passable(self):
+        return tile_info[self.type][3]

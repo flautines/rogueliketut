@@ -158,10 +158,10 @@ class DungeonGenerator(object):
 
                 # random room position inside boundaries of the map
                 room_x = libtcod.random_get_int(0,
-                        1, width - room_width - 1)
+                        1, width-1 - room_width - 1)
 
                 room_y = libtcod.random_get_int(0,
-                        1, height - room_height - 1)
+                        1, height-1 - room_height - 1)
 
                 # new room with dimensions and position from above
                 new_room = Rect(room_x, room_y, room_width, room_height)
