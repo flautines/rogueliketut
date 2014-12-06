@@ -1,3 +1,5 @@
+The patterns branch will try to convert data structures to Object Design Patterns, i.e: a 'Down Stairs' tile should be an object that knows how to draw himself, what happens when the player moves to that tile, etc.
+
 rogueliketut
 ============
 
