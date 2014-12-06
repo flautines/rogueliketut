@@ -137,11 +137,18 @@ class DungeonGenerator(object):
         :param entities: List of entities (monsters, potions, player, etc.)
                          in the map
         :param dg_algorithm:
-        :return:
+        :return: Level map in a 2x2 matrix nested list and a tuple for the
+        player start position (player_x, player_y)
         """
         self.dungeon_map = [[Tile('t_wall')
             for y in range(height)]
                 for x in range(width)]
+
+        # player start positions
+        start_x = start_y = 0
+
+        # stairs down location
+        end_x = end_y = 0
 
         # Trial and error method used by default
         if dg_algorithm == DG_TRIAL_ERROR:
@@ -183,14 +190,14 @@ class DungeonGenerator(object):
                     (new_x, new_y) = new_room.center
 
                     # debug, print room letters
-                    room_no = entity.Entity(chr(65+num_rooms), new_x, new_y,
-                                chr(65+num_rooms), libtcod.white)
-                    entities.insert(0, room_no)
+                    # room_no = entity.Entity(chr(65+num_rooms), new_x, new_y,
+                    #             chr(65+num_rooms), libtcod.white)
+                    # entities.insert(0, room_no)
 
                     # place the player at the first room (center)
                     if num_rooms == 0:
-                        player.x = new_x
-                        player.y = new_y
+                        start_x = new_x
+                        start_y = new_y
 
                     else:
                         # all rooms after the first:
@@ -209,4 +216,16 @@ class DungeonGenerator(object):
                     rooms.append(new_room)
                     num_rooms += 1
 
+                # save the coordinates of the last room
+                (end_x, end_y) = rooms[-1].center
+
+            # set the player's start location
+            player.x = start_x
+            player.y = start_y
+
+            # set the stairs up
+            self.dungeon_map[start_x][start_y] = Tile('t_stairs_up', True)
+
+            # set up stairs down in the last room
+            self.dungeon_map[end_x][end_y] = Tile('t_stairs_down', True)
             return self.dungeon_map

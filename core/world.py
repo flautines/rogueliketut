@@ -79,7 +79,6 @@ class World(object):
         if view_center_y + self.view_height > self.height:
             view_center_y = self.height - self.view_height
 
-
         # recompute FOV if needed (player moved or something)
         self._recompute_fov_if_needed()
 
@@ -99,22 +98,6 @@ class World(object):
 
                 elif self.map[x + view_center_x][y + view_center_y].explored:
                     gfx.draw(x, y, char=tile.char, color=tile.dark_color)
-                # tile_empty = True
-                # # For each tile, determine what entities will be drawn there
-                # for entity in self.entities:
-                #     if (entity.x - view_center_x, entity.y - view_center_y) \
-                #             == (x, y):
-                #
-                #         gfx.draw(x,y, entity.char, entity.color)
-                #         tile_empty = False
-                #
-                #         # If tile is empty (no entities), draw wall or floor
-                # if tile_empty:
-                #     tile = self.map[x + view_center_x][y + view_center_y]
-                #     gfx.draw(x, y, char=tile.char, color=tile.color)
-
-                    # else:
-                    # gfx.draw(x, y, ".")
 
         # Draw the player
         draw_player_x = self.player.x - view_center_x
